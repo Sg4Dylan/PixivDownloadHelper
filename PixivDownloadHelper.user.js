@@ -4,6 +4,7 @@
 // @description    Turns thumbnail titles into direct or mode=manga links, adds direct image links on mode=manga pages, replaces the medium thumbnail on mode=medium pages with the full size, and disables lazy-loading images.
 // @include        http://www.pixiv.net/*
 // @grant          GM_xmlhttpRequest
+// @connect        i.pximg.net
 // @connect        i1.pixiv.net
 // @connect        i2.pixiv.net
 // @connect        i3.pixiv.net
