@@ -15,7 +15,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2017.4.16.1
+// @version        2017.4.16.2
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
@@ -34,8 +34,8 @@ var fullSizeMedium = true;
 var dontSayLazy = true;
 
 //Text for Button & link
-var mangaModeLang = [["Right click \"Save As\" to download, file name: "], ["ダウンロードするには \"名前を付けて保存\"を右クリックし、ファイル名："], ["下载请使用右键“链接另存为”保存，文件名："]];
-var normalModeLangZero = [["Direct download", "Right click \"Save As\" to download"], ["直接ダウンロード", "ダウンロードするには \"名前を付けて保存\"を右クリックし"], ["直接下载", "使用右键链接另存为"]];
+var mangaModeLang = [["Right click \"Save As\" to download, file name: "], ["名前をつけて保存、ファイル名："], ["下载请使用右键“链接另存为”保存，文件名："]];
+var normalModeLangZero = [["Direct download", "Right click \"Save As\" to download"], ["直接ダウンロード", "名前をつけて保存"], ["直接下载", "使用右键链接另存为"]];
 
 //----------------------------------------------------------------//
 
@@ -170,8 +170,8 @@ else if( window == window.top )//not inside iframe
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
                 console.log("Prepare right click button");
-                dButton0.className = "add-bookmark _button";
-                dButton0.innerHTML = multiLang(1, 1);
+                dButton0.className = "_bookmark-toggle-button add-bookmark";
+                dButton0.innerHTML = "<span class=\"description\">"+multiLang(1, 1)+"</span>";
                 dButton0.download = FileName;
                 dButton0.href = sourcePictureLink;
                 console.log("Prepare right click button - Done !");
@@ -182,8 +182,8 @@ else if( window == window.top )//not inside iframe
                     url: sourcePictureLink,
                     responseType: "blob",
                     onload: function(response){
-                        dButton1.className = "add-bookmark _button";
-                        dButton1.innerHTML = multiLang(1, 0);
+                        dButton1.className = "_bookmark-toggle-button add-bookmark";
+                        dButton1.innerHTML = "<span class=\"description\">"+multiLang(1, 0)+"</span>";
                         dButton1.download = FileName;
                         dButton1.href = URL.createObjectURL(response.response);
                         console.log("Prepare direct click button - Done !");
