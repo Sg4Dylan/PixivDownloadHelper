@@ -1,8 +1,11 @@
 // ==UserScript==
 // @name           Pixiv Download Helper
-// @namespace      https://greasyfork.org/scripts/4555
-// @description    Turns thumbnail titles into direct or mode=manga links, adds direct image links on mode=manga pages, replaces the medium thumbnail on mode=medium pages with the full size, and disables lazy-loading images.
-// downloadURL      https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
+// @name:zh        Pixiv 下载助手
+// @description    为 Pixiv 图片阅览页增加下载原图按钮或链接
+// @namespace      https://github.com/Sg4Dylan/PixivDownloadHelper
+// @icon           https://www.pixiv.net/favicon.ico
+// @downloadURL    https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
+// @updateURL      https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
 // @include        http://www.pixiv.net/*
 // @grant          GM_xmlhttpRequest
 // @connect        i.pximg.net
@@ -11,7 +14,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2016.12.10
+// @version        2017.4.16
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
