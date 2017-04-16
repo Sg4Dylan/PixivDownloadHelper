@@ -2,6 +2,7 @@
 // @name           Pixiv Download Helper
 // @namespace      https://greasyfork.org/scripts/4555
 // @description    Turns thumbnail titles into direct or mode=manga links, adds direct image links on mode=manga pages, replaces the medium thumbnail on mode=medium pages with the full size, and disables lazy-loading images.
+// downloadURL      https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
 // @include        http://www.pixiv.net/*
 // @grant          GM_xmlhttpRequest
 // @connect        i.pximg.net
