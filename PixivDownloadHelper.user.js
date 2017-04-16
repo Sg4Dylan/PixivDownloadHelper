@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name           Pixiv Download Helper
 // @name:zh        Pixiv 下载助手
-// @description    为 Pixiv 图片阅览页增加下载原图按钮或链接
+// @name:ja        ダウンロードヘルパー
+// @description    为 Pixiv 图片阅览页增加下载原图按钮或链接 | Add download button or link for the Pixiv original picture in view page | Pixiv作品ダウンロードヘルパー
 // @namespace      https://github.com/Sg4Dylan/PixivDownloadHelper
 // @icon           https://www.pixiv.net/favicon.ico
 // @downloadURL    https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
@@ -31,6 +32,10 @@ var fullSizeMedium = true;
 
 //Disable lazy loading images.  These appear on mode=manga pages, rankings, and the "Recommended" section of the bookmarks page.
 var dontSayLazy = true;
+
+//Text for Button & link
+var mangaModeLang = [["Right click \"Save As\" to download, file name: "], ["ダウンロードするには \"名前を付けて保存\"を右クリックし、ファイル名："], ["下载请使用右键“链接另存为”保存，文件名："]];
+var normalModeLangZero = [["Direct download", "Right click \"Save As\" to download"], ["直接ダウンロード", "ダウンロードするには \"名前を付けて保存\"を右クリックし"], ["直接下载", "使用右键链接另存为"]];
 
 //----------------------------------------------------------------//
 
@@ -65,27 +70,26 @@ else if( location.search.indexOf("mode=manga") > 0 )
         req.onload = function()
         {
             console.log("Pixiv Download Helper Patch ver 0.1 by SgDylan.");
-            console.log("开始各项准备！");
-            console.log("准备下载链接中...");
+            console.log("Parsing download link...");
             var firstImage = req.responseXML.querySelector("img[src*='_p0.']").src;
             for( var i = 0; i < container.length; i++ )
             {
-                console.log("获取链接中...");
+                console.log("Getting link...");
                 var sourcePictureLink = firstImage.replace( "_p0.", "_p"+i+"." );
                 var extName = "." + sourcePictureLink.split(".").pop(-1);
                 var FileName = "[" + document.getElementsByClassName("breadcrumbs")[0].children[1].children[0].innerHTML.split(">")[1];
                 FileName += "][" + document.getElementsByClassName("breadcrumbs")[0].children[2].children[0].children[0].innerHTML + "][" + i + "]" + extName;
-                console.log("文件名："+FileName);
-                console.log("链接为："+sourcePictureLink);
-                console.log("放置未处理链接");
-                var link = document.createElement("a");
-                link.textContent = "下载请使用右键“链接另存为”保存，文件名："+FileName;
+                console.log("File name: "+FileName);
+                console.log("File Link: "+sourcePictureLink);
+                console.log("Put download link");
+                var link = document.createElement("a"); 
+                link.textContent = multiLang(0, 0)+FileName;
                 link.style.display = "block";
                 link.href = sourcePictureLink;
                 link.download = FileName;
                 container[i].parentNode.appendChild( link );
             }
-            console.log("准备工作完成！");
+            console.log("All Ready !");
         };
         req.responseType = "document";
         req.send(null);
@@ -155,35 +159,35 @@ else if( window == window.top )//not inside iframe
             if( fullSizeMedium )
             {
                 console.log("Pixiv Download Helper Patch ver 0.1 by SgDylan.");
-                console.log("开始各项准备！");
+                console.log("Parsing download link...");
                 var dButton0 = downloadButton.insertBefore( document.createElement("a"), downloadButton.firstChild );
                 var dButton1 = downloadButton.insertBefore( document.createElement("a"), downloadButton.firstChild );
-                console.log("获取链接中...");
+                console.log("Getting link...");
                 var sourcePictureLink = oClass[0].getAttribute("data-src");
                 var extName = "." + sourcePictureLink.split(".").pop(-1);
                 var FileName = "[" + document.getElementsByClassName("user")[0].innerHTML;
                 FileName += "][" + document.getElementsByClassName("title")[2].innerHTML + "]" + extName;
-                console.log("文件名："+FileName);
-                console.log("链接为："+sourcePictureLink);
-                console.log("准备‘使用右键链接另存为’按钮");
+                console.log("File name: "+FileName);
+                console.log("File Link: "+sourcePictureLink);
+                console.log("Prepare right click button");
                 dButton0.className = "add-bookmark _button";
-                dButton0.innerHTML = "使用右键链接另存为";
+                dButton0.innerHTML = multiLang(1, 1);
                 dButton0.download = FileName;
                 dButton0.href = sourcePictureLink;
-                console.log("准备‘使用右键链接另存为’按钮 - 完成！");
-                console.log("准备‘直接下载’按钮");
-                console.log("准备下载文件中...");
+                console.log("Prepare right click button - Done !");
+                console.log("Prepare direct click button");
+                console.log("Preparing download file...");
                 GM_xmlhttpRequest({
                     method: "GET",
                     url: sourcePictureLink,
                     responseType: "blob",
                     onload: function(response){
                         dButton1.className = "add-bookmark _button";
-                        dButton1.innerHTML = "直接下载";
+                        dButton1.innerHTML = multiLang(1, 0);
                         dButton1.download = FileName;
                         dButton1.href = URL.createObjectURL(response.response);
-                        console.log("准备‘直接下载’按钮 - 完成！");
-                        console.log("准备工作完成！");
+                        console.log("Prepare direct click button - Done !");
+                        console.log("All Ready !");
                     }
                 });
             }
@@ -229,6 +233,29 @@ if( dontSayLazy && unlazyImage() && window == window.top )
 
 
 //----------------------------------------------------------------//
+
+function multiLang(mode, position) {
+    lang_mode = 0;
+    localUsingLang = navigator.language;
+    if(!localUsingLang) {
+        localUsingLang = navigator.languages[0];
+    }
+    if(localUsingLang.indexOf("zh") !== -1) {
+        lang_mode = 2;
+    } else if(localUsingLang.indexOf("ja") !== -1) {
+        lang_mode = 1;
+    } else {
+        lang_mode = 0;
+    }
+    switch(mode) {
+        case 0:
+            return mangaModeLang[lang_mode][position];
+        case 1:
+            return normalModeLangZero[lang_mode][position];
+        default:
+            break;
+    }
+}
 
 function unlazyImage(target)
 {
