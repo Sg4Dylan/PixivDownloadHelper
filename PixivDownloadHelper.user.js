@@ -8,6 +8,7 @@
 // @downloadURL    https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
 // @updateURL      https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
 // @include        http://www.pixiv.net/*
+// @include        https://www.pixiv.net/*
 // @grant          GM_xmlhttpRequest
 // @connect        i.pximg.net
 // @connect        i1.pixiv.net
@@ -15,7 +16,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2017.4.16.2
+// @version        2017.4.19.0
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
