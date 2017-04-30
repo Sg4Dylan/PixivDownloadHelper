@@ -2,7 +2,9 @@
 // @name           Pixiv Download Helper
 // @name:zh        Pixiv 下载助手
 // @name:ja        ダウンロードヘルパー
-// @description    为 Pixiv 图片阅览页增加下载原图按钮或链接 | Add download button or link for the Pixiv original picture in view page | Pixiv作品ダウンロードヘルパー
+// @description    Add download button or link for the Pixiv original picture in view page
+// @description:zh 为 Pixiv 图片阅览页增加下载原图按钮或链接
+// @description:ja Pixiv作品ダウンロードヘルパー
 // @namespace      https://github.com/Sg4Dylan/PixivDownloadHelper
 // @icon           https://www.pixiv.net/favicon.ico
 // @downloadURL    https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
@@ -16,7 +18,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2017.4.19.0
+// @version        2017.4.30.0
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
