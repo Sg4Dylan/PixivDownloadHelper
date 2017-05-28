@@ -18,7 +18,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2017.4.30.0
+// @version        2017.5.28.0
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
@@ -329,7 +329,7 @@ function linkThumbTitles(targets)
 function directLinkSingle(title)
 {
     var req = new XMLHttpRequest();
-    req.open( "GET", "http://www.pixiv.net/member_illust.php?mode=medium&illust_id="+title.id, true );
+    req.open( "GET", location.protocol+"//www.pixiv.net/member_illust.php?mode=medium&illust_id="+title.id, true );
     req.onload = function()
     {
         var select = req.responseXML.getElementsByClassName("original-image");
