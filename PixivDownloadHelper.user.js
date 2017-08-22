@@ -167,7 +167,6 @@ else if( window == window.top )//not inside iframe
                 var dButton1 = downloadButton.insertBefore( document.createElement("a"), downloadButton.firstChild );
                 console.log("Getting link...");
                 var sourcePictureLink = oClass[0].getAttribute("data-src");
-                console.log("File Link: "+sourcePictureLink);
                 var extName = "." + sourcePictureLink.split(".").pop(-1);
                 var FileName = "[" + document.getElementsByClassName("user-name")[0].innerHTML;
                 FileName += "][" + document.getElementsByClassName("title")[2].innerHTML + "]" + extName;
