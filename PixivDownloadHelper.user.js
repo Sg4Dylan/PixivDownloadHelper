@@ -18,7 +18,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2017.5.28.0
+// @version        2017.8.22.0
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
@@ -167,8 +167,9 @@ else if( window == window.top )//not inside iframe
                 var dButton1 = downloadButton.insertBefore( document.createElement("a"), downloadButton.firstChild );
                 console.log("Getting link...");
                 var sourcePictureLink = oClass[0].getAttribute("data-src");
+                console.log("File Link: "+sourcePictureLink);
                 var extName = "." + sourcePictureLink.split(".").pop(-1);
-                var FileName = "[" + document.getElementsByClassName("user")[0].innerHTML;
+                var FileName = "[" + document.getElementsByClassName("user-name")[0].innerHTML;
                 FileName += "][" + document.getElementsByClassName("title")[2].innerHTML + "]" + extName;
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
