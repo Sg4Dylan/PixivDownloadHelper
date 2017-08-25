@@ -7,8 +7,6 @@
 // @description:ja Pixiv作品ダウンロードヘルパー
 // @namespace      https://github.com/Sg4Dylan/PixivDownloadHelper
 // @icon           https://www.pixiv.net/favicon.ico
-// @downloadURL    https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
-// @updateURL      https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
 // @include        http://www.pixiv.net/*
 // @include        https://www.pixiv.net/*
 // @grant          GM_xmlhttpRequest
@@ -18,7 +16,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2017.8.22.0
+// @version        2017.8.25.0
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
@@ -168,7 +166,14 @@ else if( window == window.top )//not inside iframe
                 console.log("Getting link...");
                 var sourcePictureLink = oClass[0].getAttribute("data-src");
                 var extName = "." + sourcePictureLink.split(".").pop(-1);
-                var FileName = "[" + document.getElementsByClassName("user-name")[0].innerHTML;
+                authorTagList = document.getElementsByClassName("user-name");
+                authorName = "";
+                for (var index=0; index<authorTagList.length; index++) {
+                    if (authorTagList[index].tagName=="A" && authorTagList[index].classList.value=="user-name") {
+                        authorName = authorTagList[index].innerHTML;
+                    }
+                }
+                var FileName = "[" + authorName;
                 FileName += "][" + document.getElementsByClassName("title")[2].innerHTML + "]" + extName;
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
@@ -204,9 +209,10 @@ else if( window == window.top )//not inside iframe
             req.onload = function()
             {
                 mainLink.href = req.responseXML.getElementsByTagName("img")[0].src;
-                if( fullSizeMedium )
+                if( fullSizeMedium ) {
                     mainImage.src = mainLink.href;
-            }
+                }
+            };
             req.responseType = "document";
             req.send(null);
         }
