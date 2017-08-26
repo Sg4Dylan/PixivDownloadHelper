@@ -6,6 +6,8 @@
 // @description:zh 为 Pixiv 图片阅览页增加下载原图按钮或链接
 // @description:ja Pixiv作品ダウンロードヘルパー
 // @namespace      https://github.com/Sg4Dylan/PixivDownloadHelper
+// @downloadURL    https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
+// @updateURL      https://github.com/Sg4Dylan/PixivDownloadHelper/raw/master/PixivDownloadHelper.user.js
 // @icon           https://www.pixiv.net/favicon.ico
 // @include        http://www.pixiv.net/*
 // @include        https://www.pixiv.net/*
