@@ -10,13 +10,15 @@
 // @include        http://www.pixiv.net/*
 // @include        https://www.pixiv.net/*
 // @grant          GM_xmlhttpRequest
+// @grant          GM_setValue
+// @grant          GM_getValue
 // @connect        i.pximg.net
 // @connect        i1.pixiv.net
 // @connect        i2.pixiv.net
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2017.8.25.0
+// @version        2017.8.26.0
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
@@ -37,6 +39,7 @@ var dontSayLazy = true;
 //Text for Button & link
 var mangaModeLang = [["Right click \"Save As\" to download, file name: "], ["名前をつけて保存、ファイル名："], ["下载请使用右键“链接另存为”保存，文件名："]];
 var normalModeLangZero = [["Direct download", "Right click \"Save As\" to download"], ["直接ダウンロード", "名前をつけて保存"], ["直接下载", "使用右键链接另存为"]];
+var saveFileNameFormat = [["<tr> <th> Pixiv Download Helper<br>setting<br> <a name=\"saveSetting\" class=\"btn_type01\">Save setting</a> </th> <td> <dl> <dt>format of saving file name</dt> <dd> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt0\" checked>[author name][illustrate name]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt1\">[author name][illustrate name][pixiv id]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt2\">[author name][pixiv id]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt3\">[illustrate name][pixiv id]</label> </dd> <dt>split mode</dt> <dd> <label><input type=\"radio\" name=\"pdh1\" value=\"spl0\" checked>[Name][Name]</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl1\">【Name】【...】</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl2\">Name - Name</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl3\">Name ~ Name</label> </dd> </dl> </td> </tr>","script setting saved"], ["<tr> <th> Pixivダウンロードヘルパー設定<br> <a name=\"saveSetting\" class=\"btn_type01\">設定を保存する</a> </th> <td> <dl> <dt>ファイル名を保存する形式</dt> <dd> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt0\" checked>[author name][illustrate name]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt1\">[author name][illustrate name][pixiv id]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt2\">[author name][pixiv id]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt3\">[illustrate name][pixiv id]</label> </dd> <dt>スプリットモード</dt> <dd> <label><input type=\"radio\" name=\"pdh1\" value=\"spl0\" checked>[Name][Name]</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl1\">【Name】【...】</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl2\">Name - Name</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl3\">Name ~ Name</label> </dd> </dl> </td> </tr>","スクリプト設定が保存されました"], ["<tr> <th> Pixiv 下载助手设置<br> <a name=\"saveSetting\" class=\"btn_type01\">保存插件设置</a> </th> <td> <dl> <dt>设置保存格式</dt> <dd> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt0\" checked>[author name][illustrate name]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt1\">[author name][illustrate name][pixiv id]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt2\">[author name][pixiv id]</label><br> <label><input type=\"radio\" name=\"pdh0\" value=\"fmt3\">[illustrate name][pixiv id]</label> </dd> <dt>设置分割方式</dt> <dd> <label><input type=\"radio\" name=\"pdh1\" value=\"spl0\" checked>[Name][Name]</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl1\">【Name】【...】</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl2\">Name - Name</label><br> <label><input type=\"radio\" name=\"pdh1\" value=\"spl3\">Name ~ Name</label> </dd> </dl> </td> </tr>","插件设置保存成功"]];
 
 //----------------------------------------------------------------//
 
@@ -44,6 +47,18 @@ var fullSizeWidth = "740px";
 
 if( typeof(custom) != "undefined" )
     custom();
+
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
 
 if( location.search.indexOf("mode=manga_big") > 0 || location.search.indexOf("mode=big") > 0 )
 {
@@ -78,8 +93,9 @@ else if( location.search.indexOf("mode=manga") > 0 )
                 console.log("Getting link...");
                 var sourcePictureLink = firstImage.replace( "_p0.", "_p"+i+"." );
                 var extName = "." + sourcePictureLink.split(".").pop(-1);
-                var FileName = "[" + document.getElementsByClassName("breadcrumbs")[0].children[1].children[0].innerHTML.split(">")[1];
-                FileName += "][" + document.getElementsByClassName("breadcrumbs")[0].children[2].children[0].children[0].innerHTML + "][" + i + "]" + extName;
+                authorName = document.getElementsByClassName("breadcrumbs")[0].children[1].children[0].innerHTML.split(">")[1];
+                illustName = document.getElementsByClassName("breadcrumbs")[0].children[2].children[0].children[0].innerHTML;
+                FileName = filenameConcater(authorName, illustName, i) + extName;
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
                 console.log("Put download link");
@@ -173,8 +189,7 @@ else if( window == window.top )//not inside iframe
                         authorName = authorTagList[index].innerHTML;
                     }
                 }
-                var FileName = "[" + authorName;
-                FileName += "][" + document.getElementsByClassName("title")[2].innerHTML + "]" + extName;
+                var FileName = filenameConcater(authorName, document.getElementsByClassName("title")[2].innerHTML) + extName;
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
                 console.log("Prepare right click button");
@@ -240,6 +255,69 @@ if( dontSayLazy && unlazyImage() && window == window.top )
     }).observe( document.body, { childList:true, subtree:true } );
 }
 
+//----------------------------------------------------------------//
+
+if ( location.href.indexOf('setting_user.php') > 0 ) {
+    // add some options
+    appendSwitchChildren = document.getElementsByTagName('tr');
+    appendSwitchParent = appendSwitchChildren[appendSwitchChildren.length-1].parentNode;
+    switchOption = document.createElement('tr');
+    switchOption.innerHTML = multiLang(2,0);
+    appendSwitchParent.insertBefore(switchOption, appendSwitchParent.childNodes[appendSwitchChildren.length-1]);
+    // bind button
+    document.getElementsByName("saveSetting")[0].addEventListener('click', saveScriptSetting, false);
+}
+
+function saveScriptSetting() {
+    for(let index=0; index<4; index++) {
+        if(document.getElementsByName("pdh0")[index].checked) {
+            GM_setValue("concatFmt", index);
+            break;
+        }
+    }
+    for(let index=0; index<4; index++) {
+        if(document.getElementsByName("pdh1")[index].checked) {
+            GM_setValue("splitFmt", index);
+            break;
+        }
+    }
+    alert(multiLang(2,1));
+}
+
+function filenameConcater(author_name, ill_name, index_num) {
+    name_template = "";
+    ill_id = "ID:" + getQueryString("illust_id");
+    template_two = ["[{0}][{1}]","【{0}】【{1}】","{0} - {1}","{0} ~ {1}"];
+    template_three = ["[{0}][{1}][{2}]","【{0}】【{1}】【{2}】","{0} - {1} - {2}","{0} ~ {1} ~ {2}"];
+    template_index = ["[{0}]","【{0}】","- {0}","~ {0}"];
+    if (GM_getValue("concatFmt", 0)==1) {
+        name_template = template_three[GM_getValue("splitFmt", 0)].format(author_name, ill_name, ill_id);
+        if (index_num) {
+            name_template += template_index[GM_getValue("splitFmt", 0)].format(index_num);
+        }
+        return name_template;
+    }
+    switch(GM_getValue("splitFmt", 0)) {
+        case 2:
+            name_template = template_two[2].format(author_name, ill_id);
+            break;
+        case 3:
+            name_template = template_two[3].format(ill_name, ill_id);
+            break;
+        default:
+            name_template = template_two[0].format(author_name, ill_name);
+    }
+    if (index_num) {
+        name_template += template_index[GM_getValue("splitFmt", 0)].format(index_num);
+    }
+    return name_template;
+}
+
+function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]); return null;
+}
 
 //----------------------------------------------------------------//
 
@@ -261,6 +339,8 @@ function multiLang(mode, position) {
             return mangaModeLang[lang_mode][position];
         case 1:
             return normalModeLangZero[lang_mode][position];
+        case 2:
+            return saveFileNameFormat[lang_mode][position];
         default:
             break;
     }
