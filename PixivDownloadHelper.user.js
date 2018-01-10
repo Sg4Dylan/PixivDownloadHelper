@@ -20,7 +20,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2017.8.26.0
+// @version        2018.01.10.0
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
@@ -53,11 +53,8 @@ if( typeof(custom) != "undefined" )
 if (!String.prototype.format) {
   String.prototype.format = function() {
     var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) { 
-      return typeof args[number] != 'undefined'
-        ? args[number]
-        : match
-      ;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+      return typeof args[number] != 'undefined' ? args[number] : match;
     });
   };
 }
@@ -101,7 +98,7 @@ else if( location.search.indexOf("mode=manga") > 0 )
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
                 console.log("Put download link");
-                var link = document.createElement("a"); 
+                var link = document.createElement("a");
                 link.textContent = multiLang(0, 0)+FileName;
                 link.style.display = "block";
                 link.href = sourcePictureLink;
@@ -120,7 +117,7 @@ else if( location.search.indexOf("mode=manga") > 0 )
         console.log("Mode=bookview");
         var mangaSection = document.createElement("section");
         mangaSection.className = "manga";
-        
+
         var scripts = document.head.getElementsByTagName("script");
         var hits = 0;
         for( var i = 0; i < scripts.length; i++ )
@@ -133,7 +130,7 @@ else if( location.search.indexOf("mode=manga") > 0 )
                 hits++;
             }
         }
-        
+
         if( hits > 0 )
         {
             var sheet = document.createElement("link");
@@ -157,14 +154,14 @@ else if( window == window.top )//not inside iframe
             mutationSet.forEach( function(mutation){ linkThumbTitles( mutation.addedNodes ); } );
         }).observe( document.body, { childList:true, subtree:true } );
     }
-    
+
     var worksDisplay = document.getElementsByClassName("works_display")[0];
     if( worksDisplay )
     {
         var mainImage, fullsizeSrc = 0, mainLink = worksDisplay.querySelector("a[href*='mode=']");
         if( mainLink )
             mainLink.removeAttribute('target');//Make link open in same window
-        
+
         var oClass = document.getElementsByClassName("original-image");
         var downloadButton = document.getElementsByClassName("bookmark-container")[0];
         if( oClass.length == 1 )//47235071
@@ -200,21 +197,37 @@ else if( window == window.top )//not inside iframe
                 dButton0.download = FileName;
                 dButton0.href = sourcePictureLink;
                 console.log("Prepare right click button - Done !");
-                console.log("Prepare direct click button");
-                console.log("Preparing download file...");
-                GM_xmlhttpRequest({
-                    method: "GET",
-                    url: sourcePictureLink,
-                    responseType: "blob",
-                    onload: function(response){
-                        dButton1.className = "_bookmark-toggle-button add-bookmark";
-                        dButton1.innerHTML = "<span class=\"description\">"+multiLang(1, 0)+"</span>";
-                        dButton1.download = FileName;
-                        dButton1.href = URL.createObjectURL(response.response);
-                        console.log("Prepare direct click button - Done !");
-                        console.log("All Ready !");
-                    }
-                });
+                // Prepare direct click button
+                var retry_count = 0;
+                get_blob_obj();
+                function get_blob_obj() {
+                    console.log("Prepare direct click button");
+                    console.log("Preparing download file...");
+                    GM_xmlhttpRequest({
+                        method: "GET",
+                        url: sourcePictureLink,
+                        responseType: "blob",
+                        timeout: 6000,
+                        ontimeout: function() {
+                            console.log("Timeout");
+                            retry_count++;
+                            if(retry_count<6) get_blob_obj();
+                        },
+                        onerror: function() {
+                            console.log("Error");
+                            retry_count++;
+                            if(retry_count<6) get_blob_obj();
+                        },
+                        onload: function(response){
+                            dButton1.className = "_bookmark-toggle-button add-bookmark";
+                            dButton1.innerHTML = "<span class=\"description\">"+multiLang(1, 0)+"</span>";
+                            dButton1.download = FileName;
+                            dButton1.href = URL.createObjectURL(response.response);
+                            console.log("Prepare direct click button - Done !");
+                            console.log("All Ready !");
+                        }
+                    });
+                }
             }
         }
         else if( mainLink && mainLink.href.indexOf("mode=big") > 0 && (mainImage = mainLink.getElementsByTagName("img")[0]) !== null )//17099702
@@ -233,7 +246,7 @@ else if( window == window.top )//not inside iframe
             req.responseType = "document";
             req.send(null);
         }
-        
+
         if( mainImage && fullSizeMedium )
         {
             if( fullsizeSrc )
@@ -318,7 +331,7 @@ function filenameConcater(author_name, ill_name, index_num) {
 function getQueryString(name) {
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
     var r = window.location.search.substr(1).match(reg);
-    if (r != null) return unescape(r[2]); return null;
+    if (r !== null) return unescape(r[2]); return null;
 }
 
 //----------------------------------------------------------------//
@@ -366,49 +379,54 @@ function pushTitleLink(list, link)
 function linkThumbTitles(targets)
 {
     var titleList = [];
-    
+
     for( var i = 0; i < targets.length; i++ )
     {
-        //search.php, bookmark.php, member_illust.php, new_illust.php, member.php (uploads), mypage.php (new works)
+        //search.php
+		var foundTitle = targets[i].querySelectorAll("a[href*='mode=medium'][href*='illust_id='][title]");
+		for( var j = 0; j < foundTitle.length; j++ )
+			pushTitleLink( titleList, foundTitle[j] );
+		
+		//bookmark.php, member_illust.php, new_illust.php, member.php (uploads), mypage.php (new works)
         var foundTitle = targets[i].querySelectorAll("a[href*='mode=medium'][href*='illust_id='] > .title");
         for( var j = 0; j < foundTitle.length; j++ )
             pushTitleLink( titleList, foundTitle[j].parentNode );
-        
+
         //ranking.php
         foundTitle = targets[i].querySelectorAll(".ranking-item a.title[href*='mode=medium'][href*='illust_id=']");
         for( var j = 0; j < foundTitle.length; j++ )
             pushTitleLink( titleList, foundTitle[j] );
-        
+
         //member_illust.php (what image was responding to)
         foundTitle = targets[i].querySelector(".worksImageresponseInfo a.response-out-work[href*='mode=medium'][href*='illust_id=']");
         if( foundTitle )
             pushTitleLink( titleList, foundTitle );
-        
+
         //response.php, member_illust.php (before/after thumbnails), ?member.php (bookmarks)?
         var image = targets[i].querySelectorAll("li a[href*='mode=medium'][href*='illust_id='] img");
         for( var j = 0; j < image.length; j++ )
         {
             var page, title;
             for( page = image[j].parentNode; page.tagName != "A"; page = page.parentNode );
-            
+
             //The prev/next thumbnails on mode=medium pages have text before/after the image.  Text also follows the image on image responses listings.
             if( !(title = page.getElementsByClassName("title")[0]) && (title = page.lastChild).nodeName != '#text' && (title = page.firstChild).nodeName != '#text' )
                 continue;//Can't find title element
-            
+
             //Start title link at mode=medium and change later.
             var titleLink = document.createElement("a");
             titleLink.href = page.href;
             titleLink.style.color = "#333333";//Style used on some pages
-            
+
             //Move the title out of the thumbnail link
             page.removeChild(title);
             titleLink.appendChild(title);
             page.parentNode.insertBefore( titleLink, page.nextSibling );
-            
+
             pushTitleLink( titleList, titleLink );
         }
     }
-    
+
     for( var i = 0; i < titleList.length; i++ )
         directLinkSingle( titleList[i] );
 }
