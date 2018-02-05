@@ -188,7 +188,7 @@ else if( window == window.top )//not inside iframe
                         authorName = authorTagList[index].innerHTML;
                     }
                 }
-                var FileName = filenameConcater(authorName, document.getElementsByClassName("title")[2].innerHTML) + extName;
+                var FileName = filenameConcater(authorName, document.getElementsByClassName("title")[1].innerHTML) + extName;
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
                 console.log("Prepare right click button");
