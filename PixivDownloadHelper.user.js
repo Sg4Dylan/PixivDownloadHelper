@@ -20,7 +20,7 @@
 // @connect        i3.pixiv.net
 // @connect        i4.pixiv.net
 // @connect        i5.pixiv.net
-// @version        2018.02.05.0
+// @version        2018.04.22.0(just merge code & deprecated)
 // ==/UserScript==
 
 //Turn thumbnail titles into direct links (single images) or mode=manga links.  Some kinds of thumbnails aren't covered, and an isolated few (like #17099702) don't work.
@@ -63,10 +63,10 @@ if( location.search.indexOf("mode=manga_big") > 0 || location.search.indexOf("mo
 {
     //Make the 'big'/'manga_big' image link to itself instead of closing the window
     console.log("Mode=manga_big");
-    var image = document.getElementsByTagName("img")[0];
+    let image = document.getElementsByTagName("img")[0];
     if( image )
     {
-        var link = document.createElement("a");
+        let link = document.createElement("a");
         link.href = image.src;
         link.appendChild( document.createElement("img") ).src = image.src;
         document.body.innerHTML = "";
@@ -76,18 +76,18 @@ if( location.search.indexOf("mode=manga_big") > 0 || location.search.indexOf("mo
 else if( location.search.indexOf("mode=manga") > 0 )
 {
     console.log("Mode=manga");
-    var container = document.getElementsByClassName("full-size-container");
+    let container = document.getElementsByClassName("full-size-container");
     if( directManga && container.length )
     {
         //Check the mode=manga_big page for the first page, since the sample extension is always "jpg".
-        var req = new XMLHttpRequest();
+        let req = new XMLHttpRequest();
         req.open( "GET", location.href.replace(/page=\d+&?/,'').replace('mode=manga','mode=manga_big&page=0'), true );
         req.onload = function()
         {
             console.log("Pixiv Download Helper Patch ver 0.1 by SgDylan.");
             console.log("Parsing download link...");
-            var firstImage = req.responseXML.querySelector("img[src*='_p0.']").src;
-            for( var i = 0; i < container.length; i++ )
+            let firstImage = req.responseXML.querySelector("img[src*='_p0.']").src;
+            for( let i = 0; i < container.length; i++ )
             {
                 console.log("Getting link...");
                 var sourcePictureLink = firstImage.replace( "_p0.", "_p"+i+"." );
@@ -98,7 +98,7 @@ else if( location.search.indexOf("mode=manga") > 0 )
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
                 console.log("Put download link");
-                var link = document.createElement("a");
+                let link = document.createElement("a");
                 link.textContent = multiLang(0, 0)+FileName;
                 link.style.display = "block";
                 link.href = sourcePictureLink;
@@ -115,17 +115,17 @@ else if( location.search.indexOf("mode=manga") > 0 )
         //Book view (e.g. #54139174, #57045668)
 
         console.log("Mode=bookview");
-        var mangaSection = document.createElement("section");
+        let mangaSection = document.createElement("section");
         mangaSection.className = "manga";
 
-        var scripts = document.head.getElementsByTagName("script");
-        var hits = 0;
-        for( var i = 0; i < scripts.length; i++ )
+        let scripts = document.head.getElementsByTagName("script");
+        let hits = 0;
+        for( let i = 0; i < scripts.length; i++ )
         {
-            var urls = scripts[i].innerHTML.match( /pixiv.context.images[^"]+"([^"]+)".*pixiv.context.originalImages[^"]+"([^"]+)"/ );
+            let urls = scripts[i].innerHTML.match( /pixiv.context.images[^"]+"([^"]+)".*pixiv.context.originalImages[^"]+"([^"]+)"/ );
             if( urls )
             {
-                var full = urls[2].replace( /\\\//g, "/");
+                let full = urls[2].replace( /\\\//g, "/");
                 mangaSection.innerHTML += '<div class="item-container"><a href="'+full+'" class="full-size-container"><i class="_icon-20 _icon-full-size"></i></a><img style="width:auto;height:auto;max-width:1200px;max-height:1200px" src="'+full+'" class="image">'+( directManga ? '<a href="'+full+'" style="display:block">direct link</a>' : '' )+'</div>';
                 hits++;
             }
@@ -133,7 +133,7 @@ else if( location.search.indexOf("mode=manga") > 0 )
 
         if( hits > 0 )
         {
-            var sheet = document.createElement("link");
+            let sheet = document.createElement("link");
             sheet.setAttribute("rel","stylesheet");
             sheet.setAttribute("href","http://source.pixiv.net/www/css/member_illust_manga.css");
             document.head.appendChild( sheet );
@@ -155,20 +155,20 @@ else if( window == window.top )//not inside iframe
         }).observe( document.body, { childList:true, subtree:true } );
     }
 
-    var worksDisplay = document.getElementsByClassName("works_display")[0];
+    let worksDisplay = document.getElementsByClassName("works_display")[0];
     if( worksDisplay )
     {
-        var mainImage, fullsizeSrc = 0, mainLink = worksDisplay.querySelector("a[href*='mode=']");
+        let mainImage, fullsizeSrc = 0, mainLink = worksDisplay.querySelector("a[href*='mode=']");
         if( mainLink )
             mainLink.removeAttribute('target');//Make link open in same window
 
-        var oClass = document.getElementsByClassName("original-image");
-        var downloadButton = document.getElementsByClassName("bookmark-container")[0];
+        let oClass = document.getElementsByClassName("original-image");
+        let downloadButton = document.getElementsByClassName("bookmark-container")[0];
         if( oClass.length == 1 )//47235071
         {
-            var worksDiv = worksDisplay.getElementsByTagName("div")[0];
+            let worksDiv = worksDisplay.getElementsByTagName("div")[0];
             worksDisplay.removeChild( worksDiv );//Need to remove instead of hide to prevent double source search links in other script
-            var link = worksDisplay.insertBefore( document.createElement("a"), worksDisplay.firstChild );
+            let link = worksDisplay.insertBefore( document.createElement("a"), worksDisplay.firstChild );
             mainImage = link.appendChild( fullSizeMedium ? document.createElement("img") : worksDiv.getElementsByTagName("img")[0] );
             fullsizeSrc = link.href = oClass[0].getAttribute("data-src");
             //Add button to page
@@ -176,19 +176,19 @@ else if( window == window.top )//not inside iframe
             {
                 console.log("Pixiv Download Helper Patch ver 0.1 by SgDylan.");
                 console.log("Parsing download link...");
-                var dButton0 = downloadButton.insertBefore( document.createElement("a"), downloadButton.firstChild );
-                var dButton1 = downloadButton.insertBefore( document.createElement("a"), downloadButton.firstChild );
+                let dButton0 = downloadButton.insertBefore( document.createElement("a"), downloadButton.firstChild );
+                let dButton1 = downloadButton.insertBefore( document.createElement("a"), downloadButton.firstChild );
                 console.log("Getting link...");
-                var sourcePictureLink = oClass[0].getAttribute("data-src");
-                var extName = "." + sourcePictureLink.split(".").pop(-1);
+                let sourcePictureLink = oClass[0].getAttribute("data-src");
+                let extName = "." + sourcePictureLink.split(".").pop(-1);
                 authorTagList = document.getElementsByClassName("user-name");
                 authorName = "";
-                for (var index=0; index<authorTagList.length; index++) {
+                for (let index=0; index<authorTagList.length; index++) {
                     if (authorTagList[index].tagName=="A" && authorTagList[index].classList.value=="user-name") {
                         authorName = authorTagList[index].innerHTML;
                     }
                 }
-                var FileName = filenameConcater(authorName, document.getElementsByClassName("title")[1].innerHTML) + extName;
+                let FileName = filenameConcater(authorName, document.getElementsByClassName("title")[1].innerHTML) + extName;
                 console.log("File name: "+FileName);
                 console.log("File Link: "+sourcePictureLink);
                 console.log("Prepare right click button");
@@ -198,7 +198,7 @@ else if( window == window.top )//not inside iframe
                 dButton0.href = sourcePictureLink;
                 console.log("Prepare right click button - Done !");
                 // Prepare direct click button
-                var retry_count = 0;
+                let retry_count = 0;
                 get_blob_obj();
                 function get_blob_obj() {
                     console.log("Prepare direct click button");
@@ -234,7 +234,7 @@ else if( window == window.top )//not inside iframe
         {
             //New thumbnails are always jpg, need to query mode=big page to get the right file extension.
             console.log("Mode=big");
-            var req = new XMLHttpRequest();
+            let req = new XMLHttpRequest();
             req.open( "GET", mainLink.href, true );
             req.onload = function()
             {
@@ -264,7 +264,7 @@ if( dontSayLazy && unlazyImage() && window == window.top )
     {
         mutationSet.forEach( function(mutation)
         {
-            for( var i = 0; i < mutation.addedNodes; i++ )
+            for( let i = 0; i < mutation.addedNodes; i++ )
                 unlazyImage( mutation.addedNodes[i] );
         } );
     }).observe( document.body, { childList:true, subtree:true } );
@@ -329,8 +329,8 @@ function filenameConcater(author_name, ill_name, index_num) {
 }
 
 function getQueryString(name) {
-    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
-    var r = window.location.search.substr(1).match(reg);
+    let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    let r = window.location.search.substr(1).match(reg);
     if (r !== null) return unescape(r[2]); return null;
 }
 
@@ -363,88 +363,89 @@ function multiLang(mode, position) {
 
 function unlazyImage(target)
 {
-    var images = ( target || document ).querySelectorAll("img[data-src]");
-    for( var i = 0; i < images.length; i++ )
+    let images = ( target || document ).querySelectorAll("img[data-src]");
+    for( let i = 0; i < images.length; i++ )
         images[i].src = images[i].getAttribute("data-src");
     return images.length;
 }
 
 function pushTitleLink(list, link)
 {
-    var matcher;
+    let matcher;
     if( link && link.href && (matcher = link.href.match(/illust_id=(\d+)/)) && matcher[1] > 0 )
         list.push({ "id": matcher[1], "link": link });
 }
 
 function linkThumbTitles(targets)
 {
-    var titleList = [];
+    let titleList = [];
 
-    for( var i = 0; i < targets.length; i++ )
-    {
-        //search.php
-		var foundTitle = targets[i].querySelectorAll("a[href*='mode=medium'][href*='illust_id='][title]");
-		for( var j = 0; j < foundTitle.length; j++ )
-			pushTitleLink( titleList, foundTitle[j] );
-		
-		//bookmark.php, member_illust.php, new_illust.php, member.php (uploads), mypage.php (new works)
-        var foundTitle = targets[i].querySelectorAll("a[href*='mode=medium'][href*='illust_id='] > .title");
-        for( var j = 0; j < foundTitle.length; j++ )
-            pushTitleLink( titleList, foundTitle[j].parentNode );
-
-        //ranking.php
-        foundTitle = targets[i].querySelectorAll(".ranking-item a.title[href*='mode=medium'][href*='illust_id=']");
-        for( var j = 0; j < foundTitle.length; j++ )
-            pushTitleLink( titleList, foundTitle[j] );
-
-        //member_illust.php (what image was responding to)
-        foundTitle = targets[i].querySelector(".worksImageresponseInfo a.response-out-work[href*='mode=medium'][href*='illust_id=']");
-        if( foundTitle )
-            pushTitleLink( titleList, foundTitle );
-
-        //response.php, member_illust.php (before/after thumbnails), ?member.php (bookmarks)?
-        var image = targets[i].querySelectorAll("li a[href*='mode=medium'][href*='illust_id='] img");
-        for( var j = 0; j < image.length; j++ )
+    for( let i = 0; i < targets.length; i++ )
+        if( targets[i] == document || targets[i].nodeType == Node.ELEMENT_NODE )
         {
-            var page, title;
-            for( page = image[j].parentNode; page.tagName != "A"; page = page.parentNode );
+            //search.php
+            let foundTitle = targets[i].querySelectorAll("a[href*='mode=medium'][href*='illust_id='][title]");
+            for( let j = 0; j < foundTitle.length; j++ )
+                pushTitleLink( titleList, foundTitle[j] );
 
-            //The prev/next thumbnails on mode=medium pages have text before/after the image.  Text also follows the image on image responses listings.
-            if( !(title = page.getElementsByClassName("title")[0]) && (title = page.lastChild).nodeName != '#text' && (title = page.firstChild).nodeName != '#text' )
-                continue;//Can't find title element
+            //bookmark.php, member_illust.php, new_illust.php, member.php (uploads), mypage.php (new works)
+            foundTitle = targets[i].querySelectorAll("a[href*='mode=medium'][href*='illust_id='] > .title");
+            for( let j = 0; j < foundTitle.length; j++ )
+                pushTitleLink( titleList, foundTitle[j].parentNode );
 
-            //Start title link at mode=medium and change later.
-            var titleLink = document.createElement("a");
-            titleLink.href = page.href;
-            titleLink.style.color = "#333333";//Style used on some pages
+            //ranking.php
+            foundTitle = targets[i].querySelectorAll(".ranking-item a.title[href*='mode=medium'][href*='illust_id=']");
+            for( let j = 0; j < foundTitle.length; j++ )
+                pushTitleLink( titleList, foundTitle[j] );
 
-            //Move the title out of the thumbnail link
-            page.removeChild(title);
-            titleLink.appendChild(title);
-            page.parentNode.insertBefore( titleLink, page.nextSibling );
+            //member_illust.php (what image was responding to)
+            foundTitle = targets[i].querySelector(".worksImageresponseInfo a.response-out-work[href*='mode=medium'][href*='illust_id=']");
+            if( foundTitle )
+                pushTitleLink( titleList, foundTitle );
 
-            pushTitleLink( titleList, titleLink );
-        }
-    }
+            //response.php, member_illust.php (before/after thumbnails), ?member.php (bookmarks)?
+            let image = targets[i].querySelectorAll("li a[href*='mode=medium'][href*='illust_id='] img");
+            for( let j = 0; j < image.length; j++ )
+            {
+                let page, title;
+                for( page = image[j].parentNode; page.tagName != "A"; page = page.parentNode );
 
-    for( var i = 0; i < titleList.length; i++ )
+                //The prev/next thumbnails on mode=medium pages have text before/after the image.  Text also follows the image on image responses listings.
+                if( !(title = page.getElementsByClassName("title")[0]) && (title = page.lastChild).nodeName != '#text' && (title = page.firstChild).nodeName != '#text' )
+                    continue;//Can't find title element
+
+                //Start title link at mode=medium and change later.
+                let titleLink = document.createElement("a");
+                titleLink.href = page.href;
+                titleLink.style.color = "#333333";//Style used on some pages
+
+                //Move the title out of the thumbnail link
+                page.removeChild(title);
+                titleLink.appendChild(title);
+                page.parentNode.insertBefore( titleLink, page.nextSibling );
+
+                pushTitleLink( titleList, titleLink );
+            }
+	}
+
+    for( let i = 0; i < titleList.length; i++ )
         directLinkSingle( titleList[i] );
 }
 
 //Query an image's mode=medium page.
 function directLinkSingle(title)
 {
-    var req = new XMLHttpRequest();
+    let req = new XMLHttpRequest();
     req.open( "GET", location.protocol+"//www.pixiv.net/member_illust.php?mode=medium&illust_id="+title.id, true );
     req.onload = function()
     {
-        var select = req.responseXML.getElementsByClassName("original-image");
+        let select = req.responseXML.getElementsByClassName("original-image");
         if( select.length == 1 )
             title.link.href = select[0].getAttribute("data-src");
         else if( (select = req.responseXML.querySelector(".works_display a[href*='mode=manga']")) !== null )
         {
             title.link.href = select.href;
-            var page = req.responseXML.querySelectorAll("ul.meta li")[1].textContent.match(/(\d+)P$/);
+            let page = req.responseXML.querySelectorAll("ul.meta li")[1].textContent.match(/(\d+)P$/);
             if( page )
                 ( title.link.firstChild.nodeName == '#text' ? title.link : title.link.firstChild ).title += " ("+page[1]+" pages)";
         }
